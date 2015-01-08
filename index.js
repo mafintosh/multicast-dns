@@ -9,7 +9,7 @@ module.exports = function(opts) {
   if (!opts) opts = {}
 
   var that = new events.EventEmitter()
-  var ip = opts.ip || '224.0.0.251'
+  var ip = opts.ip || opts.host || '224.0.0.251'
   var port = opts.port || 5353
 
   var bind = thunky(function(cb) {
@@ -64,25 +64,26 @@ module.exports = function(opts) {
     if (Array.isArray(res)) res = {answers:res}
 
     res.type = 'response'
-    that.send(res)
+    that.send(res, cb)
   }
 
   that.query = function(q, type, cb) {
-    if (typeof type === 'function') return that.query(name, null, type)
+    if (typeof type === 'function') return that.query(q, null, type)
     if (!cb) cb = noop
 
     if (typeof q === 'string') q = [{name:q, type:type || 'A'}]
     if (Array.isArray(q)) q = {type:'query', questions:q}
 
     q.type = 'query'
-    that.send(q)
+    that.send(q, cb)
   }
 
   that.destroy = function(cb) {
     if (!cb) cb = noop
     bind(function(err, socket) {
       if (err) return cb()
-      socket.close(cb)
+      socket.once('close', cb)
+      socket.close()
     })
   }
 
