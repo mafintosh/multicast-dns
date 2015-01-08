@@ -1,3 +1,5 @@
+var types = require('./types')
+
 var name = {}
 
 name.decode = function(buf, offset) {
@@ -13,7 +15,7 @@ name.decode = function(buf, offset) {
 
   while (len) {
     if (len >= 0xc0) {
-      list = list.concat(name.decode(buf, buf.readUInt16BE(offset-1)-0xc000))
+      list.push(name.decode(buf, buf.readUInt16BE(offset-1)-0xc000))
       offset++
       break
     }
@@ -24,10 +26,11 @@ name.decode = function(buf, offset) {
   }
 
   name.decode.bytes = offset - oldOffset
-  return list  
+  return list.join('.')
 }
 
-name.encode = function(list, buf, offset) {
+name.encode = function(n, buf, offset) {
+  var list = n.split('.')
   var oldOffset = offset
 
   for (var i = 0; i < list.length; i++) {
@@ -42,10 +45,8 @@ name.encode = function(list, buf, offset) {
   return buf
 }
 
-name.encodingLength = function(list) {
-  var len = 1
-  for (var i = 0; i < list.length; i++) len += 1+Buffer.byteLength(list[i])
-  return len
+name.encodingLength = function(n) {
+  return Buffer.byteLength(n)+2
 }
 
 var str = {}
@@ -193,27 +194,6 @@ rptr.encodingLength = function(data) {
   return name.encodingLength(data)+2
 }
 
-var rnsec = {}
-
-rnsec.encode = function(data, buf, offset) {
-  throw new Error('not implemented')
-}
-
-rnsec.decode = function(buf, offset) {
-  var len = buf.readUInt16BE(offset)
-
-  var data = {}
-  data.next = name.decode(buf, offset+2)
-  data.type = buf.slice(offset+2+name.decode.bytes, len+2)
-
-  rnsec.decode.bytes = len+2
-  return data
-}
-
-rnsec.encodingLength = function(data) {
-  throw new Error('not implemented')
-}
-
 var rsrv = {}
 
 rsrv.encode = function(data, buf, offset) {
@@ -305,41 +285,14 @@ raaaa.encodingLength = function(host) {
 
 var answer = {}
 
-var toName = function(type) {
-  switch (type) {
-    case 1:  return 'a'
-    case 12: return 'ptr'
-    case 13: return 'hinfo'
-    case 16: return 'txt'
-    case 28: return 'aaaa'
-    case 33: return 'srv'
-    case 47: return 'nsec'
-  }
-  return type
-}
-
-var fromName = function(name) {
-  switch (name) {
-    case 'a': return 1
-    case 'ptr': return 12
-    case 'hinfo': return 13
-    case 'txt': return 16
-    case 'aaaa': return 28
-    case 'srv': return 33
-    case 'nsec': return 47
-  }
-  return 0
-}
-
 var renc = function(type) {
-  switch (type) {
-    case 'a':  return ra
-    case 'ptr': return rptr
-    case 'hinfo': return rhinfo
-    case 'txt': return rtxt
-    case 'aaaa': return raaaa
-    case 'srv': return rsrv
-    case 'nsec': return rnsec
+  switch (type.toUpperCase()) {
+    case 'A':  return ra
+    case 'PTR': return rptr
+    case 'TXT': return rtxt
+    case 'AAAA': return raaaa
+    case 'SRV': return rsrv
+    case 'HINFO': return rhinfo
   }
   return runknown
 }
@@ -350,7 +303,7 @@ answer.decode = function(buf, offset) {
 
   a.name = name.decode(buf, offset)
   offset += name.decode.bytes
-  a.type = toName(buf.readUInt16BE(offset))
+  a.type = types.toString(buf.readUInt16BE(offset))
   a.class = buf.readUInt16BE(offset+2)
   a.ttl = buf.readUInt32BE(offset+4)
 
@@ -368,9 +321,9 @@ answer.encode = function(a, buf, offset) {
   name.encode(a.name, buf, offset)
   offset += name.encode.bytes
 
-  buf.writeUInt16BE(fromName(a.type), offset)
+  buf.writeUInt16BE(types.toType(a.type), offset)
   buf.writeUInt16BE(a.class === undefined ? 1 : a.class, offset+2)
-  buf.writeUInt32BE(a.ttl, offset+4)
+  buf.writeUInt32BE(a.ttl || 0, offset+4)
 
   var enc = renc(a.type)
   enc.encode(a.data, buf, offset+8)
@@ -393,7 +346,7 @@ question.decode = function(buf, offset) {
   q.name = name.decode(buf, offset)
   offset += name.decode.bytes
 
-  q.type = buf.readUInt16BE(offset)
+  q.type = types.toString(buf.readUInt16BE(offset))
   offset += 2
 
   q.class = buf.readUInt16BE(offset)
@@ -409,7 +362,7 @@ question.encode = function(q, buf, offset) {
   name.encode(q.name, buf, offset)
   offset += name.encode.bytes
 
-  buf.writeUInt16BE(q.type, offset)
+  buf.writeUInt16BE(types.toType(q.type), offset)
   offset += 2
 
   buf.writeUInt16BE(q.class === undefined ? 1 : q.class, offset)

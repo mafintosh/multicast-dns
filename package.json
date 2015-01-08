@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "WIP - nothing to see here",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "thunky": "^0.1.0"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",
