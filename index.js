@@ -24,6 +24,8 @@ module.exports = function(opts) {
         return
       }
 
+      that.emit('packet', message, rinfo)
+
       if (message.type === 'query') that.emit('query', message, rinfo)
       if (message.type === 'response') that.emit('response', message, rinfo)
     })
@@ -48,36 +50,39 @@ module.exports = function(opts) {
 
   bind()
 
+  that.send = function(packet, cb) {
+    bind(function(err, socket) {
+      if (err) return cb(err)
+      var message = packets.encode(packet)
+      socket.send(message, 0, message.length, port, ip, cb)
+    })
+  }
+
   that.response = 
   that.respond = function(res, cb) {
     if (!cb) cb = noop
-  
-    bind(function(err, socket) {
-      if (err) return cb(err)      
+    if (Array.isArray(res)) res = {answers:res}
 
-      res.type = 'response'
-      var message = packets.encode(res)
-      
-      socket.send(message, 0, message.length, port, ip, cb)
-    })    
+    res.type = 'response'
+    that.send(res)
   }
 
-  that.query = function(name, type, cb) {
+  that.query = function(q, type, cb) {
     if (typeof type === 'function') return that.query(name, null, type)
     if (!cb) cb = noop
 
+    if (typeof q === 'string') q = [{name:q, type:type || 'A'}]
+    if (Array.isArray(q)) q = {type:'query', questions:q}
+
+    q.type = 'query'
+    that.send(q)
+  }
+
+  that.destroy = function(cb) {
+    if (!cb) cb = noop
     bind(function(err, socket) {
-      if (err) return cb(err)
-
-      var message = packets.encode({
-        type: 'query',
-        questions: [{
-          name: name,
-          type: type || 'A'
-        }]
-      })
-
-      socket.send(message, 0, message.length, port, ip, cb)
+      if (err) return cb()
+      socket.close(cb)
     })
   }
 
