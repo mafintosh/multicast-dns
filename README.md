@@ -1,6 +1,6 @@
 # multicast-dns
 
-Low level multicast-dns implementation in pure js
+Low level multicast-dns implementation in pure javascript
 
 ```
 npm install multicast-dns
@@ -173,8 +173,8 @@ mdns.respond({
 The following shorthands are equivalent
 
 ``` js
-mdns.query([{name:'brunhilde.local', type:'A', data:'192.158.1.5'}])
-mdns.query({
+mdns.response([{name:'brunhilde.local', type:'A', data:'192.158.1.5'}])
+mdns.response({
   answers: [{name:'brunhilde.local', type:'A', data:'192.158.1.5'}]
 })
 ```
