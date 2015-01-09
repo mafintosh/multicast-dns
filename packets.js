@@ -52,7 +52,7 @@ name.encodingLength = function(n) {
 var str = {}
 
 str.encode = function(s, buf, offset) {
-  var len = buf.write(s, offset)
+  var len = buf.write(s, offset+1)
   buf[offset] = len
   str.encode.bytes = len+1
   return buf
@@ -256,7 +256,7 @@ ra.encodingLength = function(host) {
 var raaaa = {}
 
 raaaa.encode = function(host, buf, offset) {
-  buf.writeUInt16BE(4, 2)
+  buf.writeUInt16BE(16, offset)
   offset += 2
 
   var nums = host.split(':')
