@@ -1,5 +1,9 @@
 var mdns = require('./')()
 
+mdns.on('warning', function(err) {
+  console.log(err.stack)
+})
+
 mdns.on('response', function(response) {
   console.log('got a response packet:', response)
 })
