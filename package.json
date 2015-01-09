@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",
+  "scripts": {
+    "test": "tape test.js"
+  },
   "dependencies": {
     "thunky": "^0.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tape": "^3.0.3"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mafintosh/multicast-dns.git"
