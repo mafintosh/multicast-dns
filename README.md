@@ -6,6 +6,8 @@ Low level multicast-dns implementation in pure javascript
 npm install multicast-dns
 ```
 
+[![build status](http://img.shields.io/travis/mafintosh/multicast-dns.svg?style=flat)](http://travis-ci.org/mafintosh/multicast-dns)
+
 ## Usage
 
 ``` js
