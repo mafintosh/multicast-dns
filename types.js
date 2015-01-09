@@ -46,7 +46,7 @@ exports.toString = function(type) {
 }
 
 exports.toType = function(name) {
-  switch (name.toUpperCase()) {
+  switch (name.toString().toUpperCase()) {
     case 'A':          return 1
     case 'AAAA':       return 28
     case 'AFSDB':      return 18

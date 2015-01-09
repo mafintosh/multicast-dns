@@ -286,7 +286,7 @@ raaaa.encodingLength = function(host) {
 var answer = {}
 
 var renc = function(type) {
-  switch (type.toUpperCase()) {
+  switch (type.toString().toUpperCase()) {
     case 'A':  return ra
     case 'PTR': return rptr
     case 'TXT': return rtxt
