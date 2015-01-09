@@ -41,12 +41,13 @@ exports.toString = function(type) {
     case 16:    return 'TXT'
     case 252:   return 'AXFR'
     case 251:   return 'IXFR'
+    case 41:    return 'OPT'
   }
-  return type
+  return 'UNKNOWN-'+type
 }
 
 exports.toType = function(name) {
-  switch (name.toString().toUpperCase()) {
+  switch (name.toUpperCase()) {
     case 'A':          return 1
     case 'AAAA':       return 28
     case 'AFSDB':      return 18
@@ -88,6 +89,7 @@ exports.toType = function(name) {
     case 'TXT':        return 16
     case 'AXFR':       return 252
     case 'IXFR':       return 251
+    case 'OPT':        return 41
   }
   return 0
 }
