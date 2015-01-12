@@ -32,7 +32,7 @@ module.exports = function(opts) {
 
     socket.bind(port, function() {
       if (opts.multicast !== false) {
-        socket.addMembership(ip)
+        socket.addMembership(ip, opts.interface)
         socket.setMulticastTTL(opts.ttl || 255)
         socket.setMulticastLoopback(opts.loopback !== false)
       }
