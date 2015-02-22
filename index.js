@@ -13,13 +13,13 @@ module.exports = function(opts) {
   var port = opts.port || 5353
 
   var bind = thunky(function(cb) {
-    var socket
-
-    if (typeof opts.reuseAddr !== 'undefined') {
-      socket = dgram.createSocket({type:'udp4', reuseAddr:opts.reuseAddr})
-    } else {
-      socket = dgram.createSocket('udp4')
-    }
+    var socket = dgram.createSocket({
+      type: 'udp4',
+      reuseAddr: opts.reuseAddr !== false,
+      toString: function() {
+        return 'udp4'
+      }
+    })
 
     socket.on('error', cb)
     socket.on('message', function(message, rinfo) {
