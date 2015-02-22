@@ -111,7 +111,8 @@ Creates a new `mdns` instance. Options can contain the following
   port: 5353, // set the udp port
   ip: '224.0.0.251', // set the udp ip
   ttl: 255, // set the multicast ttl
-  loopback: true // receive your own packets
+  loopback: true, // receive your own packets
+  reuseAddr: true // set the reuseAddr option when creating the socket (requires node >=0.11.13)
 }
 ```
 
@@ -131,7 +132,7 @@ mdns.on('query', function(query) {
 
 Emitted when a response packet is received.
 
-The response might not be a response to a query you send as this 
+The response might not be a response to a query you send as this
 is the result of someone multicasting a response.
 
 #### `mdns.query(packet, [cb])`
