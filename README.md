@@ -73,6 +73,18 @@ got a response packet: { type: 'response',
        data: 'fe80::5ef9:38ff:fe8c:ceaa' } ] }
 ```
 
+
+# CLI
+
+```
+npm install -g multicast-dns
+```
+
+```
+multicast-dns brunhilde.local
+> 192.168.1.1
+```
+
 # API
 
 A packet has the following format

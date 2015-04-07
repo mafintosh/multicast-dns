@@ -6,6 +6,7 @@
   "scripts": {
     "test": "tape test.js"
   },
+  "bin": "cli.js",
   "dependencies": {
     "thunky": "^0.1.0"
   },
