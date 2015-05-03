@@ -265,7 +265,7 @@ raaaa.encode = function (host, buf, offset) {
   for (var i = 0; i < missing; i++) nums.splice(idx, 0, '0')
   for (var j = 0; j < nums.length; j++) buf.writeUInt16BE(parseInt(nums[j] || 0, 16), offset + 2 * j)
 
-  ra.encode.bytes = 18
+  raaaa.encode.bytes = 18
   return buf
 }
 
