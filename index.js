@@ -9,15 +9,20 @@ module.exports = function (opts) {
   if (!opts) opts = {}
 
   var that = new events.EventEmitter()
-  var ip = opts.ip || opts.host || '224.0.0.251'
   var port = opts.port || 5353
+  var type = opts.type || 'udp4'
+  var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
+
+  if (type === 'udp6' && (!ip || !opts.interface)) {
+    throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
+  }
 
   var bind = thunky(function (cb) {
     var socket = dgram.createSocket({
-      type: 'udp4',
+      type: type,
       reuseAddr: opts.reuseAddr !== false,
       toString: function () {
-        return 'udp4'
+        return type
       }
     })
 
