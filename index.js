@@ -12,57 +12,63 @@ module.exports = function (opts) {
   var port = opts.port || 5353
   var type = opts.type || 'udp4'
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
+  var sockets = []
 
   if (type === 'udp6' && (!ip || !opts.interface)) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
-  var bind = thunky(function (cb) {
-    var socket = dgram.createSocket({
-      type: type,
-      reuseAddr: opts.reuseAddr !== false,
-      toString: function () {
-        return type
-      }
-    })
-
-    socket.on('error', cb)
-    socket.on('message', function (message, rinfo) {
-      try {
-        message = packets.decode(message)
-      } catch (err) {
-        that.emit('warning', err)
-        return
-      }
-
-      that.emit('packet', message, rinfo)
-
-      if (message.type === 'query') that.emit('query', message, rinfo)
-      if (message.type === 'response') that.emit('response', message, rinfo)
-    })
-
-    socket.bind(port, function () {
-      if (opts.multicast !== false) {
-        socket.addMembership(ip, opts.interface)
-        socket.setMulticastTTL(opts.ttl || 255)
-        socket.setMulticastLoopback(opts.loopback !== false)
-      }
-
-      socket.removeListener('error', cb)
-      socket.on('error', function (err) {
-        that.emit('warning', err)
+  function binder (port) {
+    var bind = thunky(function (cb) {
+      var socket = dgram.createSocket({
+        type: type,
+        reuseAddr: opts.reuseAddr !== false,
+        toString: function () {
+          return type
+        }
       })
 
-      that.emit('ready')
+      socket.on('error', cb)
+      socket.on('message', function (message, rinfo) {
+        try {
+          message = packets.decode(message)
+        } catch (err) {
+          that.emit('warning', err)
+          return
+        }
 
-      cb(null, socket)
+        that.emit('packet', message, rinfo)
+
+        if (message.type === 'query') that.emit('query', message, rinfo)
+        if (message.type === 'response') that.emit('response', message, rinfo)
+      })
+
+      socket.bind(port, function () {
+        if (opts.multicast !== false) {
+          socket.addMembership(ip, opts.interface)
+          socket.setMulticastTTL(opts.ttl || 255)
+          socket.setMulticastLoopback(opts.loopback !== false)
+        }
+
+        socket.removeListener('error', cb)
+        socket.on('error', function (err) {
+          that.emit('warning', err)
+        })
+
+        that.emit('ready')
+        sockets.push(socket)
+        cb(null, socket)
+      })
     })
-  })
 
-  bind()
+    return bind
+  }
+
+  binder(port)()
+   // to avoid sending on the same port as we listen for queries
 
   that.send = function (packet, cb) {
-    bind(function (err, socket) {
+    binder(0)(function (err, socket) {
       if (err) return cb(err)
       var message = packets.encode(packet)
       socket.send(message, 0, message.length, port, ip, cb)
@@ -91,11 +97,10 @@ module.exports = function (opts) {
 
   that.destroy = function (cb) {
     if (!cb) cb = noop
-    bind(function (err, socket) {
-      if (err) return cb()
-      socket.once('close', cb)
+    sockets.forEach(function (socket) {
       socket.close()
     })
+    cb()
   }
 
   return that
