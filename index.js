@@ -13,6 +13,7 @@ module.exports = function (opts) {
   var type = opts.type || 'udp4'
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
   var sockets = []
+  var clientSocket
 
   if (type === 'udp6' && (!ip || !opts.interface)) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
@@ -65,14 +66,21 @@ module.exports = function (opts) {
   }
 
   binder(port)()
-   // to avoid sending on the same port as we listen for queries
 
-  that.send = function (packet, cb) {
-    binder(0)(function (err, socket) {
-      if (err) return cb(err)
+  that.send = function send (packet, cb) {
+    if (clientSocket) {
       var message = packets.encode(packet)
-      socket.send(message, 0, message.length, port, ip, cb)
-    })
+      clientSocket.send(message, 0, message.length, port, ip, cb)
+    } else {
+      binder(0)(function (err, socket) {
+        if (err) {
+          return cb(err)
+        }
+        clientSocket = socket
+        send(packet, cb)
+      })
+    }
+    // })
   }
 
   that.response =
