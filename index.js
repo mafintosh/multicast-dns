@@ -27,7 +27,7 @@ module.exports = function (opts) {
     })
 
     socket.on('error', function (err) {
-      that.emit('warning', err)
+      that.emit('error', err)
     })
 
     socket.on('message', function (message, rinfo) {
