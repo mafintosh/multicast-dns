@@ -92,7 +92,7 @@ module.exports = function (opts) {
     if (typeof type === 'function') return that.query(q, null, type)
     if (!cb) cb = noop
 
-    if (typeof q === 'string') q = [{name: q, type: type || 'A'}]
+    if (typeof q === 'string') q = [{name: q, type: type || 'ANY'}]
     if (Array.isArray(q)) q = {type: 'query', questions: q}
 
     q.type = 'query'
