@@ -123,15 +123,32 @@ test('SRV record', function (dns, t) {
 })
 
 test('TXT record', function (dns, t) {
+  var data = new Buffer('black box')
+
   dns.once('query', function (packet) {
     t.same(packet.questions.length, 1, 'one question')
     t.same(packet.questions[0], {name: 'hello-world', type: 'TXT', class: 1})
-    dns.response([{type: 'TXT', name: 'hello-world', ttl: 120, data: 'hello=world,hej=verden'}])
+    dns.response([{type: 'TXT', name: 'hello-world', ttl: 120, data: data}])
   })
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 1, 'one answer')
-    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: 'hello=world,hej=verden', class: 1})
+    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 1})
+    dns.destroy(function () {
+      t.end()
+    })
+  })
+
+  dns.query('hello-world', 'TXT')
+})
+
+test('TXT record - empty', function (dns, t) {
+  dns.once('query', function (packet) {
+    dns.response([{type: 'TXT', name: 'hello-world', ttl: 120}])
+  })
+
+  dns.once('response', function (packet) {
+    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: new Buffer('00', 'hex'), class: 1})
     dns.destroy(function () {
       t.end()
     })

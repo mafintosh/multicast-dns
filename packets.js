@@ -127,21 +127,42 @@ runknown.encodingLength = function (data) {
 
 var rtxt = {}
 
-rtxt.encode = function (s, buf, offset) {
-  str.encode(s, buf, offset + 2)
-  buf.writeUInt16BE(str.encode.bytes, offset)
-  rtxt.encode.bytes = str.encode.bytes + 2
+rtxt.encode = function (data, buf, offset) {
+  if (typeof data === 'string') data = new Buffer(data)
+  var oldOffset = offset
+  offset += 2
+
+  if (!data || data.length === 0) {
+    str.encode('', buf, offset)
+    offset += str.encode.bytes
+  } else {
+    var len = data.length
+    data.copy(buf, offset, 0, len)
+    offset += len
+  }
+
+  buf.writeUInt16BE(offset - oldOffset - 2, oldOffset)
+  rtxt.encode.bytes = offset - oldOffset
   return buf
 }
 
 rtxt.decode = function (buf, offset) {
-  var s = str.decode(buf, offset + 2)
-  rtxt.decode.bytes = str.decode.bytes + 2
-  return s
+  var oldOffset = offset
+  var len = buf.readUInt16BE(offset)
+
+  offset += 2
+
+  var data = buf.slice(offset, offset + len)
+  offset += len
+
+  rtxt.decode.bytes = offset - oldOffset
+  return data
 }
 
-rtxt.encodingLength = function (s) {
-  return str.encodingLength(s) + 2
+rtxt.encodingLength = function (data) {
+  if (!data) return 3 // 2 bytes (RDATA field length) + 1 byte (single empty byte)
+  if (!data || data.length === 0) return 3 // 2 bytes (RDATA field length) + 1 byte (single empty byte)
+  return data.length + 2 // +2 bytes (RDATA field length)
 }
 
 var rhinfo = {}
