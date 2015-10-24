@@ -36,6 +36,18 @@ test('works', function (dns, t) {
   })
 })
 
+test('ANY query', function (dns, t) {
+  dns.once('query', function (packet) {
+    t.same(packet.questions.length, 1, 'one question')
+    t.same(packet.questions[0], {name: 'hello-world', type: 'ANY', class: 1})
+    dns.destroy(function () {
+      t.end()
+    })
+  })
+
+  dns.query('hello-world', 'ANY')
+})
+
 test('A record', function (dns, t) {
   dns.once('query', function (packet) {
     t.same(packet.questions.length, 1, 'one question')
