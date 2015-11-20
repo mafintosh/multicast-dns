@@ -189,8 +189,8 @@ mdns.respond({
 The following shorthands are equivalent
 
 ``` js
-mdns.response([{name:'brunhilde.local', type:'A', data:'192.158.1.5'}])
-mdns.response({
+mdns.respond([{name:'brunhilde.local', type:'A', data:'192.158.1.5'}])
+mdns.respond({
   answers: [{name:'brunhilde.local', type:'A', data:'192.158.1.5'}]
 })
 ```
