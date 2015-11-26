@@ -1,4 +1,5 @@
 var types = require('./types')
+var ip = require('ip')
 
 var name = {}
 
@@ -252,22 +253,16 @@ var ra = {}
 ra.encode = function (host, buf, offset) {
   buf.writeUInt16BE(4, offset)
   offset += 2
-
-  var nums = host.split('.')
-  for (var i = 0; i < 4; i++) buf[offset++] = Number(nums[i])
-
+  ip.toBuffer(host, buf, offset)
   ra.encode.bytes = 6
   return buf
 }
 
 ra.decode = function (buf, offset) {
   offset += 2
-
-  var host = []
-  for (var i = 0; i < 4; i++) host.push(buf[offset++])
-
+  var host = ip.toString(buf, offset, 4)
   ra.decode.bytes = 6
-  return host.join('.')
+  return host
 }
 
 ra.encodingLength = function (host) {
@@ -279,25 +274,16 @@ var raaaa = {}
 raaaa.encode = function (host, buf, offset) {
   buf.writeUInt16BE(16, offset)
   offset += 2
-
-  var nums = host.split(':')
-  var idx = nums.indexOf('')
-  var missing = 8 - nums.length
-  for (var i = 0; i < missing; i++) nums.splice(idx, 0, '0')
-  for (var j = 0; j < nums.length; j++) buf.writeUInt16BE(parseInt(nums[j] || 0, 16), offset + 2 * j)
-
+  ip.toBuffer(host, buf, offset)
   raaaa.encode.bytes = 18
   return buf
 }
 
 raaaa.decode = function (buf, offset) {
   offset += 2
-
-  var host = []
-  for (var i = 0; i < 16; i += 2) host.push(buf.toString('hex', offset + i, offset + i + 2))
-
+  var host = ip.toString(buf, offset, 16)
   raaaa.decode.bytes = 18
-  return host.join(':').replace(/(:|^)0000(:0000)*(:|$)/, '$1$3').replace(/(^|:)0*(\d)/g, '$1$2')
+  return host
 }
 
 raaaa.encodingLength = function (host) {

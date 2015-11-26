@@ -8,7 +8,8 @@
   },
   "bin": "cli.js",
   "dependencies": {
-    "thunky": "^0.1.0"
+    "thunky": "^0.1.0",
+    "ip": "~1.1.0"
   },
   "devDependencies": {
     "standard": "^3.3.2",
