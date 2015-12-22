@@ -69,18 +69,17 @@ str.encodingLength = function (s) {
   return Buffer.byteLength(s) + 1
 }
 
-var QUERY_FLAG = 0x0000
-var RESPONSE_FLAG = 0x8400
+var QUERY_FLAG = 0
+var RESPONSE_FLAG = 1 << 15
 
 var header = {}
 
 header.decode = function (buf, offset) {
   var flags = buf.readUInt16BE(offset + 2)
-  if (flags !== RESPONSE_FLAG && flags !== QUERY_FLAG) throw new Error('bad type: ' + flags)
 
   header.decode.bytes = 12
   return {
-    type: flags === RESPONSE_FLAG ? 'response' : 'query',
+    type: flags & RESPONSE_FLAG ? 'response' : 'query',
     qdcount: buf.readUInt16BE(offset + 4),
     ancount: buf.readUInt16BE(offset + 6),
     nscount: buf.readUInt16BE(offset + 8),
