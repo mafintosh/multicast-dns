@@ -75,11 +75,10 @@ var RESPONSE_FLAG = 1 << 15
 var header = {}
 
 header.decode = function (buf, offset) {
-  var flags = buf.readUInt16BE(offset + 2)
-
   header.decode.bytes = 12
   return {
-    type: flags & RESPONSE_FLAG ? 'response' : 'query',
+    id: buf.readUInt16BE(offset),
+    type: buf.readUInt16BE(offset + 2) & RESPONSE_FLAG ? 'response' : 'query',
     qdcount: buf.readUInt16BE(offset + 4),
     ancount: buf.readUInt16BE(offset + 6),
     nscount: buf.readUInt16BE(offset + 8),
@@ -88,7 +87,7 @@ header.decode = function (buf, offset) {
 }
 
 header.encode = function (h, buf, offset) {
-  buf.writeUInt16BE(0, offset)
+  buf.writeUInt16BE(h.id || 0, offset)
   buf.writeUInt16BE(h.type === 'response' ? RESPONSE_FLAG : QUERY_FLAG, offset + 2)
   buf.writeUInt16BE(h.qdcount, offset + 4)
   buf.writeUInt16BE(h.ancount, offset + 6)
