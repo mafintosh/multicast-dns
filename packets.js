@@ -83,7 +83,7 @@ header.decode = function (buf, offset) {
     ancount: buf.readUInt16BE(offset + 6),
     nscount: buf.readUInt16BE(offset + 8),
     arcount: buf.readUInt16BE(offset + 10)
-   }
+  }
 }
 
 header.encode = function (h, buf, offset) {

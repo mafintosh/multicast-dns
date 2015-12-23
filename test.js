@@ -142,6 +142,26 @@ test('TXT record', function (dns, t) {
   dns.query('hello-world', 'TXT')
 })
 
+test('TXT record - data being a string', function (dns, t) {
+  var data = 'Just came to say, hello!'
+
+  dns.once('query', function (packet) {
+    t.same(packet.questions.length, 1, 'one question')
+    t.same(packet.questions[0], {name: 'hello-world', type: 'TXT', class: 1})
+    dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120, data: data}])
+  })
+
+  dns.once('response', function (packet) {
+    t.same(packet.answers.length, 1, 'one answer')
+    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 1})
+    dns.destroy(function () {
+      t.end()
+    })
+  })
+
+  dns.query('hello-world', 'TXT')
+})
+
 test('TXT record - empty', function (dns, t) {
   dns.once('query', function (packet) {
     dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120}])
