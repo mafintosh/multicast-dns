@@ -11,8 +11,8 @@
     "thunky": "^0.1.0"
   },
   "devDependencies": {
-    "standard": "^3.3.2",
-    "tape": "^3.0.3"
+    "standard": "^5.4.1",
+    "tape": "^4.4.0"
   },
   "repository": {
     "type": "git",
