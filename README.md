@@ -182,7 +182,7 @@ mdns.respond({
     }
   }, {
     name: 'brunhilde.local',
-    type: 'A'
+    type: 'A',
     ttl: 300,
     data: '192.168.1.5'
   }]
@@ -201,6 +201,17 @@ mdns.respond({
 #### `mdns.destroy()`
 
 Destroy the mdns instance. Closes the udp socket.
+
+
+# Dev
+
+Kick start your hacks like this
+
+```
+git clone ...
+node example.js -v
+node cli.js $(hostname).local -v
+```
 
 ## License
 
