@@ -202,15 +202,15 @@ mdns.respond({
 
 Destroy the mdns instance. Closes the udp socket.
 
+# Development
 
-# Dev
-
-Kick start your hacks like this
+To start hacking on this module you can use this example to get started
 
 ```
-git clone ...
-node example.js -v
-node cli.js $(hostname).local -v
+git clone git://github.com/mafintosh/multicast-dns.git
+npm install
+node example.js
+node cli.js $(hostname).local
 ```
 
 ## License
