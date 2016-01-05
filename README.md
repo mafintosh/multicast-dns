@@ -56,20 +56,23 @@ got a response packet: { type: 'response',
   answers:
    [ { name: 'brunhilde.local',
        type: 'A',
-       class: 32769,
+       class: 1,
        ttl: 120,
+       flush: true,
        data: '192.168.1.5' } ],
   authorities: [],
   additionals:
    [ { name: 'brunhilde.local',
        type: 'A',
-       class: 32769,
+       class: 1,
        ttl: 120,
+       flush: true,
        data: '192.168.1.5' },
      { name: 'brunhilde.local',
        type: 'AAAA',
-       class: 32769,
+       class: 1,
        ttl: 120,
+       flush: true,
        data: 'fe80::5ef9:38ff:fe8c:ceaa' } ] }
 ```
 

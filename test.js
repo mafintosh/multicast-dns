@@ -57,7 +57,7 @@ test('A record', function (dns, t) {
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 1, 'one answer')
-    t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 1})
+    t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
@@ -76,8 +76,8 @@ test('A record (two questions)', function (dns, t) {
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 2, 'one answers')
-    t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 1})
-    t.same(packet.answers[1], {type: 'A', name: 'hej.verden', ttl: 120, data: '127.0.0.2', class: 1})
+    t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 1, flush: false})
+    t.same(packet.answers[1], {type: 'A', name: 'hej.verden', ttl: 120, data: '127.0.0.2', class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
@@ -95,7 +95,7 @@ test('AAAA record', function (dns, t) {
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 1, 'one answer')
-    t.same(packet.answers[0], {type: 'AAAA', name: 'hello-world', ttl: 120, data: 'fe80::5ef9:38ff:fe8c:ceaa', class: 1})
+    t.same(packet.answers[0], {type: 'AAAA', name: 'hello-world', ttl: 120, data: 'fe80::5ef9:38ff:fe8c:ceaa', class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
@@ -113,7 +113,7 @@ test('SRV record', function (dns, t) {
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 1, 'one answer')
-    t.same(packet.answers[0], {type: 'SRV', name: 'hello-world', ttl: 120, data: {port: 11111, target: 'hello.world.com', priority: 10, weight: 12}, class: 1})
+    t.same(packet.answers[0], {type: 'SRV', name: 'hello-world', ttl: 120, data: {port: 11111, target: 'hello.world.com', priority: 10, weight: 12}, class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
@@ -133,7 +133,7 @@ test('TXT record', function (dns, t) {
 
   dns.once('response', function (packet) {
     t.same(packet.answers.length, 1, 'one answer')
-    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 1})
+    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
@@ -148,11 +148,38 @@ test('TXT record - empty', function (dns, t) {
   })
 
   dns.once('response', function (packet) {
-    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: new Buffer('00', 'hex'), class: 1})
+    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: new Buffer('00', 'hex'), class: 1, flush: false})
     dns.destroy(function () {
       t.end()
     })
   })
 
   dns.query('hello-world', 'TXT')
+})
+
+test('cache flush bit', function (dns, t) {
+  dns.once('query', function (packet) {
+    dns.respond({
+      answers: [
+        {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.1', class: 1, flush: true},
+        {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.2', class: 1, flush: false}
+      ],
+      additionals: [
+        {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.3', class: 1, flush: true}
+      ]
+    })
+  })
+
+  dns.once('response', function (packet) {
+    t.same(packet.answers, [
+      {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.1', class: 1, flush: true},
+      {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.2', class: 1, flush: false}
+    ])
+    t.same(packet.additionals[0], {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.3', class: 1, flush: true})
+    dns.destroy(function () {
+      t.end()
+    })
+  })
+
+  dns.query('foo', 'A')
 })
