@@ -1,6 +1,6 @@
 {
   "name": "multicast-dns",
-  "version": "5.0.2",
+  "version": "5.1.0",
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",
   "scripts": {
