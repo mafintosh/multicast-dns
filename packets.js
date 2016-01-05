@@ -1,6 +1,7 @@
 var types = require('./types')
 
 var name = {}
+var FLUSH_MASK = 1 << 15
 
 name.decode = function (buf, offset) {
   var list = []
@@ -326,6 +327,9 @@ answer.decode = function (buf, offset) {
   a.class = buf.readUInt16BE(offset + 2)
   a.ttl = buf.readUInt32BE(offset + 4)
 
+  a.flush = !!(a.class & FLUSH_MASK)
+  if (a.flush) a.class &= ~FLUSH_MASK
+
   var enc = renc(a.type)
   a.data = enc.decode(buf, offset + 8)
   offset += 8 + enc.decode.bytes
@@ -341,7 +345,11 @@ answer.encode = function (a, buf, offset) {
   offset += name.encode.bytes
 
   buf.writeUInt16BE(types.toType(a.type), offset)
-  buf.writeUInt16BE(a.class === undefined ? 1 : a.class, offset + 2)
+
+  var klass = a.class === undefined ? 1 : a.class
+  if (a.flush) klass |= FLUSH_MASK // the 1st bit of the class is the flush bit
+  buf.writeUInt16BE(klass, offset + 2)
+
   buf.writeUInt32BE(a.ttl || 0, offset + 4)
 
   var enc = renc(a.type)
