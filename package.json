@@ -9,7 +9,7 @@
   "bin": "cli.js",
   "dependencies": {
     "thunky": "^0.1.0",
-    "ip": "~1.1.0"
+    "ip": "^1.1.0"
   },
   "devDependencies": {
     "standard": "^5.4.1",
