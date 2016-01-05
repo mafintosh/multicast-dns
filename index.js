@@ -27,7 +27,8 @@ module.exports = function (opts) {
   })
 
   socket.on('error', function (err) {
-    that.emit('warning', err)
+    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
+    else that.emit('warning', err)
   })
 
   socket.on('message', function (message, rinfo) {
