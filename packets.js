@@ -3,6 +3,7 @@ var ip = require('ip')
 
 var name = {}
 var FLUSH_MASK = 1 << 15
+var QU_MASK = 1 << 15
 
 name.decode = function (buf, offset) {
   var list = []
@@ -364,6 +365,9 @@ question.decode = function (buf, offset) {
 
   q.class = buf.readUInt16BE(offset)
   offset += 2
+
+  var qu = !!(q.class & QU_MASK)
+  if (qu) q.class &= ~QU_MASK
 
   question.decode.bytes = offset - oldOffset
   return q

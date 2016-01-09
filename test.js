@@ -161,6 +161,23 @@ test('TXT record - empty', function (dns, t) {
   dns.query('hello-world', 'TXT')
 })
 
+test('QU question bit', function (dns, t) {
+  dns.once('query', function (packet) {
+    t.same(packet.questions, [
+      {type: 'A', name: 'foo', class: 1},
+      {type: 'A', name: 'bar', class: 1}
+    ])
+    dns.destroy(function () {
+      t.end()
+    })
+  })
+
+  dns.query([
+    {type: 'A', name: 'foo', class: 32769},
+    {type: 'A', name: 'bar', class: 1}
+  ])
+})
+
 test('cache flush bit', function (dns, t) {
   dns.once('query', function (packet) {
     dns.respond({
