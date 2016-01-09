@@ -16,7 +16,11 @@ var port = function (cb) {
 var test = function (name, fn) {
   tape(name, function (t) {
     port(function (p) {
-      fn(mdns({ip: '127.0.0.1', port: p, multicast: false}), t)
+      var dns = mdns({ip: '127.0.0.1', port: p, multicast: false})
+      dns.on('warning', function (e) {
+        t.error(e)
+      })
+      fn(dns, t)
     })
   })
 }
