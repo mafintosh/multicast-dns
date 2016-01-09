@@ -1,6 +1,6 @@
 {
   "name": "multicast-dns",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",
   "scripts": {
@@ -35,5 +35,9 @@
     "discovery",
     "bonjour",
     "avahi"
+  ],
+  "coordinates": [
+    56.009986032141335,
+    11.961881270211734
   ]
 }
