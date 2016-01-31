@@ -1,6 +1,7 @@
 exports.toString = function (type) {
   switch (type) {
     case 1: return 'A'
+    case 10: return 'NULL'
     case 28: return 'AAAA'
     case 18: return 'AFSDB'
     case 42: return 'APL'
@@ -50,6 +51,7 @@ exports.toString = function (type) {
 exports.toType = function (name) {
   switch (name.toUpperCase()) {
     case 'A': return 1
+    case 'NULL': return 10
     case 'AAAA': return 28
     case 'AFSDB': return 18
     case 'APL': return 42

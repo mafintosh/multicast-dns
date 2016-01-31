@@ -127,7 +127,9 @@ runknown.encodingLength = function (data) {
 }
 
 var rtxt = {}
+var rnull = {}
 
+rnull.encode =
 rtxt.encode = function (data, buf, offset) {
   if (typeof data === 'string') data = new Buffer(data)
   var oldOffset = offset
@@ -147,6 +149,7 @@ rtxt.encode = function (data, buf, offset) {
   return buf
 }
 
+rnull.decode =
 rtxt.decode = function (buf, offset) {
   var oldOffset = offset
   var len = buf.readUInt16BE(offset)
@@ -160,6 +163,7 @@ rtxt.decode = function (buf, offset) {
   return data
 }
 
+rnull.encodingLength =
 rtxt.encodingLength = function (data) {
   if (!data) return 3 // 2 bytes (RDATA field length) + 1 byte (single empty byte)
   if (!data || data.length === 0) return 3 // 2 bytes (RDATA field length) + 1 byte (single empty byte)
@@ -297,6 +301,7 @@ var renc = function (type) {
     case 'A': return ra
     case 'PTR': return rptr
     case 'TXT': return rtxt
+    case 'NULL': return rnull
     case 'AAAA': return raaaa
     case 'SRV': return rsrv
     case 'HINFO': return rhinfo
