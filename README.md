@@ -122,7 +122,7 @@ Creates a new `mdns` instance. Options can contain the following
 ``` js
 {
   multicast: true // use udp multicasting
-  interface: 'en0' // explicitly specify a network interface. defaults to all
+  interface: '192.168.0.2' // explicitly specify a network interface. defaults to all
   port: 5353, // set the udp port
   ip: '224.0.0.251', // set the udp ip
   ttl: 255, // set the multicast ttl
