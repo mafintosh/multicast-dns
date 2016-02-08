@@ -18,7 +18,7 @@ module.exports = function (opts) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
-  var socket = dgram.createSocket({
+  var socket = opts.socket || dgram.createSocket({
     type: type,
     reuseAddr: opts.reuseAddr !== false,
     toString: function () {
