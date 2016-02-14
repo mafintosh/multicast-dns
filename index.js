@@ -55,6 +55,7 @@ module.exports = function (opts) {
   })
 
   var bind = thunky(function (cb) {
+    if (!port) return cb(null)
     socket.once('error', cb)
     socket.bind(port, function () {
       socket.removeListener('error', cb)
