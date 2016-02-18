@@ -34,10 +34,6 @@ Running the above (change `brunhilde.local` to `your-own-hostname.local`) will p
 
 ``` js
 got a query packet: { type: 'query',
-  qdcount: 1,
-  ancount: 0,
-  nscount: 0,
-  arcount: 0,
   questions: [ { name: 'brunhilde.local', type: 'A', class: 1 } ],
   answers: [],
   authorities: [],
@@ -48,10 +44,6 @@ And then a response packet
 
 ``` js
 got a response packet: { type: 'response',
-  qdcount: 0,
-  ancount: 1,
-  nscount: 0,
-  arcount: 2,
   questions: [],
   answers:
    [ { name: 'brunhilde.local',
