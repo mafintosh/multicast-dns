@@ -1,4 +1,4 @@
-var packets = require('./packets')
+var packet = require('dns-packet')
 var dgram = require('dgram')
 var thunky = require('thunky')
 var events = require('events')
@@ -33,7 +33,7 @@ module.exports = function (opts) {
 
   socket.on('message', function (message, rinfo) {
     try {
-      message = packets.decode(message)
+      message = packet.decode(message)
     } catch (err) {
       that.emit('warning', err)
       return
@@ -68,13 +68,13 @@ module.exports = function (opts) {
     that.emit('ready')
   })
 
-  that.send = function (packet, rinfo, cb) {
-    if (typeof rinfo === 'function') return that.send(packet, null, rinfo)
+  that.send = function (value, rinfo, cb) {
+    if (typeof rinfo === 'function') return that.send(value, null, rinfo)
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
     bind(function (err) {
       if (err) return cb(err)
-      var message = packets.encode(packet)
+      var message = packet.encode(value)
       socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
     })
   }
