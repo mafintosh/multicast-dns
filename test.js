@@ -146,21 +146,6 @@ test('TXT record', function (dns, t) {
   dns.query('hello-world', 'TXT')
 })
 
-test('TXT record - empty', function (dns, t) {
-  dns.once('query', function (packet) {
-    dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120}])
-  })
-
-  dns.once('response', function (packet) {
-    t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: new Buffer('00', 'hex'), class: 1, flush: false})
-    dns.destroy(function () {
-      t.end()
-    })
-  })
-
-  dns.query('hello-world', 'TXT')
-})
-
 test('QU question bit', function (dns, t) {
   dns.once('query', function (packet) {
     t.same(packet.questions, [
