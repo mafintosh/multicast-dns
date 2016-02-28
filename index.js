@@ -13,6 +13,7 @@ module.exports = function (opts) {
   var type = opts.type || 'udp4'
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
   var me = {address: ip, port: port}
+  var destroyed = false
 
   if (type === 'udp6' && (!ip || !opts.interface)) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
@@ -73,6 +74,7 @@ module.exports = function (opts) {
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
     bind(function (err) {
+      if (destroyed) return cb()
       if (err) return cb(err)
       var message = packet.encode(value)
       socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
@@ -102,6 +104,8 @@ module.exports = function (opts) {
 
   that.destroy = function (cb) {
     if (!cb) cb = noop
+    if (destroyed) return process.nextTick(cb)
+    destroyed = true
     socket.once('close', cb)
     socket.close()
   }
