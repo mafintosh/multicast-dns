@@ -2,6 +2,7 @@ var packet = require('dns-packet')
 var dgram = require('dgram')
 var thunky = require('thunky')
 var events = require('events')
+var os = require('os')
 
 var noop = function () {}
 
@@ -50,6 +51,22 @@ module.exports = function (opts) {
     if (!port) port = me.port = socket.address().port
     if (opts.multicast !== false) {
       socket.addMembership(ip, opts.interface)
+
+      if (!opts.interface && type === 'udp4') {
+        var interfaces = os.networkInterfaces()
+        Object.keys(interfaces).forEach(function (key) {
+          interfaces[key].forEach(function (iface) {
+            if (iface.internal || iface.family !== 'IPv4') return
+            console.log('*** attaching', iface.address)
+            try {
+              socket.addMembership(ip, iface.address)
+            } catch (e) {
+              console.log('*** ERR:', e.message)
+            }
+          })
+        })
+      }
+
       socket.setMulticastTTL(opts.ttl || 255)
       socket.setMulticastLoopback(opts.loopback !== false)
     }
