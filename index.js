@@ -19,6 +19,30 @@ module.exports = function (opts) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
+  // create socket to send messages
+  var socketSend = dgram.createSocket({
+    type: type,
+    reuseAddr: opts.reuseAddr !== false,
+    toString: function () {
+      return type
+    }
+  })
+
+  socketSend.on('listening', function () {
+    if (opts.multicast !== false) {
+      socketSend.setMulticastTTL(opts.ttl || 255)
+      socketSend.setMulticastLoopback(opts.loopback !== false)
+    }
+  })
+
+  socketSend.on('error', function (err) {
+    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
+    else that.emit('warning', err)
+  })
+
+  socketSend.bind(port, opts.interface)
+
+  // create socket to listen for messages
   var socket = opts.socket || dgram.createSocket({
     type: type,
     reuseAddr: opts.reuseAddr !== false,
@@ -58,7 +82,7 @@ module.exports = function (opts) {
   var bind = thunky(function (cb) {
     if (!port) return cb(null)
     socket.once('error', cb)
-    socket.bind(port, opts.interface, function () {
+    socket.bind(port, function () {
       socket.removeListener('error', cb)
       cb(null)
     })
@@ -73,12 +97,9 @@ module.exports = function (opts) {
     if (typeof rinfo === 'function') return that.send(value, null, rinfo)
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
-    bind(function (err) {
-      if (destroyed) return cb()
-      if (err) return cb(err)
-      var message = packet.encode(value)
-      socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
-    })
+    if (destroyed) return cb()
+    var message = packet.encode(value)
+    socketSend.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
   }
 
   that.response =
@@ -108,6 +129,7 @@ module.exports = function (opts) {
     destroyed = true
     socket.once('close', cb)
     socket.close()
+    socketSend.close()
   }
 
   return that
