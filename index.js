@@ -14,33 +14,37 @@ module.exports = function (opts) {
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
   var me = {address: ip, port: port}
   var destroyed = false
+  var interfaces = opts.interface ? (Array.isArray(opts.interface) ? opts.interface : [opts.interface]) : null
+  var sendSockets = []
 
-  if (type === 'udp6' && (!ip || !opts.interface)) {
+  if (type === 'udp6' && (!ip || !interfaces.length)) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
-  // create socket to send messages
-  var socketSend = dgram.createSocket({
-    type: type,
-    reuseAddr: opts.reuseAddr !== false,
-    toString: function () {
-      return type
-    }
-  })
+  // create sockets to send messages
+  for (var si = 0; si <= (interfaces ? interfaces.length : 0); si++) {
+    sendSockets[si] = dgram.createSocket({
+      type: type,
+      reuseAddr: opts.reuseAddr !== false,
+      toString: function () {
+        return type
+      }
+    })
 
-  socketSend.on('listening', function () {
-    if (opts.multicast !== false) {
-      socketSend.setMulticastTTL(opts.ttl || 255)
-      socketSend.setMulticastLoopback(opts.loopback !== false)
-    }
-  })
+    sendSockets[si].on('listening', function () {
+      if (opts.multicast !== false) {
+        this.setMulticastTTL(opts.ttl || 255)
+        this.setMulticastLoopback(opts.loopback !== false)
+      }
+    })
 
-  socketSend.on('error', function (err) {
-    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
-    else that.emit('warning', err)
-  })
+    sendSockets[si].on('error', function (err) {
+      if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
+      else that.emit('warning', err)
+    })
 
-  socketSend.bind(port, opts.interface)
+    sendSockets[si].bind(port, (interfaces ? interfaces[si] : null))
+  }
 
   // create socket to listen for messages
   var socket = opts.socket || dgram.createSocket({
@@ -72,10 +76,12 @@ module.exports = function (opts) {
 
   socket.on('listening', function () {
     if (!port) port = me.port = socket.address().port
-    if (opts.multicast !== false) {
-      socket.addMembership(ip, opts.interface)
-      socket.setMulticastTTL(opts.ttl || 255)
-      socket.setMulticastLoopback(opts.loopback !== false)
+    if (opts.multicast !== false && interfaces && interfaces.length) {
+      interfaces.forEach(function(interface) {
+        socket.addMembership(ip, interface)
+        socket.setMulticastTTL(opts.ttl || 255)
+        socket.setMulticastLoopback(opts.loopback !== false)
+      })
     }
   })
 
@@ -99,7 +105,9 @@ module.exports = function (opts) {
     if (!rinfo) rinfo = me
     if (destroyed) return cb()
     var message = packet.encode(value)
-    socketSend.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
+    sendSockets.forEach(function(sendSocket) {
+      sendSocket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
+    })
   }
 
   that.response =
@@ -129,7 +137,9 @@ module.exports = function (opts) {
     destroyed = true
     socket.once('close', cb)
     socket.close()
-    socketSend.close()
+    sendSockets.forEach(function(sendSocket) {
+      sendSocket.close()
+    })
   }
 
   return that
