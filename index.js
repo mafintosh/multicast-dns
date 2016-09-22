@@ -49,7 +49,11 @@ module.exports = function (opts) {
   socket.on('listening', function () {
     if (!port) port = me.port = socket.address().port
     if (opts.multicast !== false) {
-      socket.addMembership(ip, opts.interface)
+      try {
+        socket.addMembership(ip, opts.interface)
+      } catch (err) {
+        that.emit('error', err)
+      }
       socket.setMulticastTTL(opts.ttl || 255)
       socket.setMulticastLoopback(opts.loopback !== false)
     }
