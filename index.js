@@ -14,7 +14,7 @@ module.exports = function (opts) {
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
   var me = {address: ip, port: port}
   var destroyed = false
-  var interfaces = opts.interface ? (Array.isArray(opts.interface) ? opts.interface : [opts.interface]) : null
+  var interfaces = opts.interface ? (Array.isArray(opts.interface) ? opts.interface : [opts.interface]) : []
   var sendSockets = []
 
   if (type === 'udp6' && (!ip || !interfaces.length)) {
@@ -22,7 +22,7 @@ module.exports = function (opts) {
   }
 
   // create sockets to send messages
-  for (var si = 0; si <= (interfaces ? interfaces.length : 0); si++) {
+  for (var si = 0; si <= interfaces.length; si++) {
     sendSockets[si] = dgram.createSocket({
       type: type,
       reuseAddr: opts.reuseAddr !== false,
@@ -43,7 +43,7 @@ module.exports = function (opts) {
       else that.emit('warning', err)
     })
 
-    sendSockets[si].bind(port, (interfaces ? interfaces[si] : null))
+    sendSockets[si].bind(port, interfaces[si] || null)
   }
 
   // create socket to listen for messages
@@ -76,9 +76,9 @@ module.exports = function (opts) {
 
   socket.on('listening', function () {
     if (!port) port = me.port = socket.address().port
-    if (opts.multicast !== false && interfaces && interfaces.length) {
-      interfaces.forEach(function(interface) {
-        socket.addMembership(ip, interface)
+    if (opts.multicast !== false && interfaces.length) {
+      interfaces.forEach(function (iface) {
+        socket.addMembership(ip, iface)
         socket.setMulticastTTL(opts.ttl || 255)
         socket.setMulticastLoopback(opts.loopback !== false)
       })
@@ -105,7 +105,7 @@ module.exports = function (opts) {
     if (!rinfo) rinfo = me
     if (destroyed) return cb()
     var message = packet.encode(value)
-    sendSockets.forEach(function(sendSocket) {
+    sendSockets.forEach(function (sendSocket) {
       sendSocket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
     })
   }
@@ -137,7 +137,7 @@ module.exports = function (opts) {
     destroyed = true
     socket.once('close', cb)
     socket.close()
-    sendSockets.forEach(function(sendSocket) {
+    sendSockets.forEach(function (sendSocket) {
       sendSocket.close()
     })
   }
