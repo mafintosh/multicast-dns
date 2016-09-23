@@ -114,7 +114,7 @@ Creates a new `mdns` instance. Options can contain the following
 ``` js
 {
   multicast: true // use udp multicasting
-  interface: '192.168.0.2' // explicitly specify a network interface. defaults to all
+  interface: '192.168.0.2' // explicitly specify a network interface or array of interfaces**
   port: 5353, // set the udp port
   ip: '224.0.0.251', // set the udp ip
   ttl: 255, // set the multicast ttl
@@ -122,6 +122,10 @@ Creates a new `mdns` instance. Options can contain the following
   reuseAddr: true // set the reuseAddr option when creating the socket (requires node >=0.11.13)
 }
 ```
+
+<sup>**</sup> The interface option should be specified on host systems with multiple network
+interface options. When not specified a single interface will be automatically chosen for
+broadcasting.
 
 #### `mdns.on('query', (packet, rinfo))`
 
