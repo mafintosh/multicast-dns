@@ -78,7 +78,11 @@ module.exports = function (opts) {
     if (!port) port = me.port = socket.address().port
     if (opts.multicast !== false && interfaces.length) {
       interfaces.forEach(function (iface) {
-        socket.addMembership(ip, iface)
+        try {
+          socket.addMembership(ip, iface)
+        } catch (err) {
+          that.emit('error', err)
+        }
         socket.setMulticastTTL(opts.ttl || 255)
         socket.setMulticastLoopback(opts.loopback !== false)
       })
