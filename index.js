@@ -81,7 +81,7 @@ module.exports = function (opts) {
         try {
           socket.addMembership(ip, iface)
         } catch (err) {
-          that.emit('error', err)
+          that.emit('warning', err)
         }
       })
       socket.setMulticastTTL(opts.ttl || 255)
