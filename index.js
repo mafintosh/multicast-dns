@@ -83,9 +83,9 @@ module.exports = function (opts) {
         } catch (err) {
           that.emit('error', err)
         }
-        socket.setMulticastTTL(opts.ttl || 255)
-        socket.setMulticastLoopback(opts.loopback !== false)
       })
+      socket.setMulticastTTL(opts.ttl || 255)
+      socket.setMulticastLoopback(opts.loopback !== false)
     }
   })
 
