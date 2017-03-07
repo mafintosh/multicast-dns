@@ -3,8 +3,10 @@
   "version": "6.1.1",
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "test": "standard && tape test.js"
+    "test": "standard && tape test.js",
+    "typing-test": "tsc --noemit typing-test.ts"
   },
   "bin": "cli.js",
   "dependencies": {
@@ -12,6 +14,7 @@
     "thunky": "^0.1.0"
   },
   "devDependencies": {
+    "@types/node": "^6.0.51",
     "standard": "^5.4.1",
     "tape": "^4.4.0"
   },
