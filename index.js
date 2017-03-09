@@ -19,7 +19,18 @@ module.exports = function (opts) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
-  var socket = opts.socket || dgram.createSocket({
+  // We need a sending *and* a receiving socket instance here.
+  // Without this, the group isn't joined correctly and we won't get a response.
+  // Downside of this atm is that every interface receives a response, but this
+  // can be filtered upstream.
+  var recvSocket = opts.socket || dgram.createSocket({
+    type: type,
+    reuseAddr: opts.reuseAddr !== false,
+    toString: function () {
+      return type
+    }
+  })
+  var sendSocket =  opts.socket || dgram.createSocket({
     type: type,
     reuseAddr: opts.reuseAddr !== false,
     toString: function () {
@@ -27,12 +38,16 @@ module.exports = function (opts) {
     }
   })
 
-  socket.on('error', function (err) {
+  recvSocket.on('error', function (err) {
+    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
+    else that.emit('warning', err)
+  })
+  sendSocket.on('error', function (err) {
     if (err.code === 'EACCES' || err.code === 'EADDRINUSE') that.emit('error', err)
     else that.emit('warning', err)
   })
 
-  socket.on('message', function (message, rinfo) {
+  recvSocket.on('message', function (message, rinfo) {
     try {
       message = packet.decode(message)
     } catch (err) {
@@ -46,29 +61,37 @@ module.exports = function (opts) {
     if (message.type === 'response') that.emit('response', message, rinfo)
   })
 
-  socket.on('listening', function () {
+  recvSocket.on('listening', function () {
     if (!port) port = me.port = socket.address().port
     if (opts.multicast !== false) {
-      try {
-        socket.addMembership(ip, opts.interface)
-      } catch (err) {
-        that.emit('error', err)
-      }
-      socket.setMulticastTTL(opts.ttl || 255)
-      socket.setMulticastLoopback(opts.loopback !== false)
+      recvSocket.addMembership(ip, opts.interface)
+      recvSocket.setMulticastTTL(opts.ttl || 255)
+      recvSocket.setMulticastLoopback(opts.loopback !== false)
     }
   })
 
-  var bind = thunky(function (cb) {
+  var sendBind = thunky(function (cb) {
     if (!port) return cb(null)
-    socket.once('error', cb)
-    socket.bind(port, opts.interface, function () {
-      socket.removeListener('error', cb)
+    sendSocket.once('error', cb)
+    sendSocket.bind(port, opts.interface, function () {
+      sendSocket.removeListener('error', cb)
+      cb(null)
+    })
+  })
+  var recvBind = thunky(function (cb) {
+    if (!port) return cb(null)
+    recvSocket.once('error', cb)
+    recvSocket.bind(port, null, function () {
+      recvSocket.removeListener('error', cb)
       cb(null)
     })
   })
 
-  bind(function (err) {
+  sendBind(function (err) {
+    if (err) return that.emit('error', err)
+    that.emit('ready')
+  })
+  recvBind(function (err) {
     if (err) return that.emit('error', err)
     that.emit('ready')
   })
@@ -77,11 +100,11 @@ module.exports = function (opts) {
     if (typeof rinfo === 'function') return that.send(value, null, rinfo)
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
-    bind(function (err) {
+    sendBind(function (err) {
       if (destroyed) return cb()
       if (err) return cb(err)
       var message = packet.encode(value)
-      socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
+      sendSocket.send(message, 0, message.length, rinfo.port, '224.0.0.251', cb)
     })
   }
 
@@ -110,8 +133,11 @@ module.exports = function (opts) {
     if (!cb) cb = noop
     if (destroyed) return process.nextTick(cb)
     destroyed = true
-    socket.once('close', cb)
-    socket.close()
+    sendSocket.once('close', function () {
+      recvSocket.once('close', cb)
+      recvSocket.close()
+    })
+    sendSocket.close()
   }
 
   return that
