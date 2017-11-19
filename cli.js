@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var mdns = require('multicast-dns')()
+var mdns = require('./')()
 var path = require('path')
 var os = require('os')
 
