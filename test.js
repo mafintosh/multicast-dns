@@ -21,7 +21,7 @@ var tests = Configs.map(function (config) {
   return function (name, fn) {
     tape(name, function (t) {
       port(function (p) {
-        config.port = p;
+        config.port = p
         var dns = mdns(config)
         dns.on('warning', function (e) {
           t.error(e)
