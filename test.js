@@ -12,12 +12,13 @@ var port = function (cb) {
     s.close()
   })
 }
-var Configs = [
+
+var configs = [
    {ip: '127.0.0.1', multicast: false}
   // {'interface': '127.0.0.1', multicast: true}
 ]
 
-var tests = Configs.map(function (config) {
+var tests = configs.map(function (config) {
   return function (name, fn) {
     tape(name, function (t) {
       port(function (p) {
