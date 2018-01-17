@@ -132,7 +132,7 @@ module.exports = function (opts) {
       try {
         socket.addMembership(ip, addr)
       } catch (err) {
-        that.emit('error', err)
+        that.emit('warning', err)
       }
     }
 
