@@ -222,4 +222,19 @@ tests.forEach(function (test) {
 
     dns.query('foo', 'A')
   })
+
+  test('Authoritive Answer bit', function (dns, t) {
+    dns.once('query', function (packet) {
+      dns.respond([])
+    })
+
+    dns.once('response', function (packet) {
+      t.ok(packet.flag_auth, 'should be set')
+      dns.destroy(function () {
+        t.end()
+      })
+    })
+
+    dns.query('foo', 'A')
+  })
 })
