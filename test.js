@@ -191,7 +191,7 @@ tests.forEach(function (test) {
     })
 
     dns.query([
-      {type: 'A', name: 'foo', class: 32769},
+      {type: 'A', name: 'foo', class: 'IN'},
       {type: 'A', name: 'bar', class: 'IN'}
     ])
   })
@@ -229,7 +229,7 @@ tests.forEach(function (test) {
     })
 
     dns.once('response', function (packet) {
-      t.ok(packet.flag_auth, 'should be set')
+      t.ok(packet.flag_aa, 'should be set')
       dns.destroy(function () {
         t.end()
       })
