@@ -8,7 +8,7 @@
   },
   "bin": "cli.js",
   "dependencies": {
-    "dns-packet": "github:mafintosh/dns-packet#d58cdb341901b15d1b27cd6190924cc78ced2575",
+    "dns-packet": "github:richardschneider/dns-packet#class-flush",
     "thunky": "^1.0.2"
   },
   "devDependencies": {

@@ -160,7 +160,7 @@ tests.forEach(function (test) {
   })
 
   test('TXT record', function (dns, t) {
-    var data = Buffer.from('black box')
+    var data = [Buffer.from('black box')]
 
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
