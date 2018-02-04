@@ -8,7 +8,7 @@
   },
   "bin": "cli.js",
   "dependencies": {
-    "dns-packet": "github:richardschneider/dns-packet#class-flush",
+    "dns-packet": "^4.0.0",
     "thunky": "^1.0.2"
   },
   "devDependencies": {
