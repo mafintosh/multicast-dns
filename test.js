@@ -179,6 +179,26 @@ tests.forEach(function (test) {
     dns.query('hello-world', 'TXT')
   })
 
+  test('TXT array record', function (dns, t) {
+    var data = ['black', 'box']
+
+    dns.once('query', function (packet) {
+      t.same(packet.questions.length, 1, 'one question')
+      t.same(packet.questions[0], {name: 'hello-world', type: 'TXT', class: 'IN'})
+      dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120, data: data}])
+    })
+
+    dns.once('response', function (packet) {
+      t.same(packet.answers.length, 1, 'one answer')
+      t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 'IN', flush: false})
+      dns.destroy(function () {
+        t.end()
+      })
+    })
+
+    dns.query('hello-world', 'TXT')
+  })
+
   test('QU question bit', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions, [
