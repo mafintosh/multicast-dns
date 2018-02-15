@@ -115,7 +115,7 @@ module.exports = function (opts) {
     if (destroyed) return process.nextTick(cb)
     destroyed = true
     clearInterval(interval)
-    
+
     // Need to drop memberships by hand and ignore errors.
     // socket.close() does not cope with errors.
     for (var iface in memberships) {
