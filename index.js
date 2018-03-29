@@ -15,6 +15,7 @@ module.exports = function (opts) {
   var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
   var me = {address: ip, port: port}
   var memberships = {}
+  var exclusive = opts.exclusive
   var destroyed = false
   var interval = null
 
@@ -62,7 +63,7 @@ module.exports = function (opts) {
   var bind = thunky(function (cb) {
     if (!port || opts.bind === false) return cb(null)
     socket.once('error', cb)
-    socket.bind(port, opts.interface, function () {
+    socket.bind({port: port, address: opts.interface, exclusive: exclusive}, function () {
       socket.removeListener('error', cb)
       cb(null)
     })
