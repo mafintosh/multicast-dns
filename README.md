@@ -120,6 +120,7 @@ Creates a new `mdns` instance. Options can contain the following
   ttl: 255, // set the multicast ttl
   loopback: true, // receive your own packets
   reuseAddr: true // set the reuseAddr option when creating the socket (requires node >=0.11.13)
+  exclusive: true // set to true to prevent cluster workers from using the same underlying socket handle
 }
 ```
 
