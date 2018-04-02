@@ -1,5 +1,5 @@
 {
-  "name": "multicast-dns",
+  "name": "@lgs-innovations/multicast-dns",
   "version": "7.2.0",
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",

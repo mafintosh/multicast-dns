@@ -1,0 +1,26 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/kevindy/.nvm/versions/node/v6.13.1/bin/node',
+1 verbose cli   '/home/kevindy/.nvm/versions/node/v6.13.1/bin/npm',
+1 verbose cli   'publish',
+1 verbose cli   '--tag',
+1 verbose cli   'v7.0.1',
+1 verbose cli   '--access',
+1 verbose cli   'public' ]
+2 info using npm@3.10.10
+3 info using node@v6.13.1
+4 verbose publish [ '.' ]
+5 verbose stack Error: Tag name must not be a valid SemVer range: v7.0.1
+5 verbose stack     at EventEmitter.publish (/home/kevindy/.nvm/versions/node/v6.13.1/lib/node_modules/npm/lib/publish.js:41:14)
+5 verbose stack     at Object.commandCache.(anonymous function) (/home/kevindy/.nvm/versions/node/v6.13.1/lib/node_modules/npm/lib/npm.js:124:13)
+5 verbose stack     at EventEmitter.<anonymous> (/home/kevindy/.nvm/versions/node/v6.13.1/lib/node_modules/npm/bin/npm-cli.js:73:30)
+5 verbose stack     at _combinedTickCallback (internal/process/next_tick.js:73:7)
+5 verbose stack     at process._tickCallback (internal/process/next_tick.js:104:9)
+6 verbose cwd /opt/kevindy/src/github/LGSInnovations/multicast-dns
+7 error Linux 4.13.0-37-generic
+8 error argv "/home/kevindy/.nvm/versions/node/v6.13.1/bin/node" "/home/kevindy/.nvm/versions/node/v6.13.1/bin/npm" "publish" "--tag" "v7.0.1" "--access" "public"
+9 error node v6.13.1
+10 error npm  v3.10.10
+11 error Tag name must not be a valid SemVer range: v7.0.1
+12 error If you need help, you may report this error at:
+12 error     <https://github.com/npm/npm/issues>
+13 verbose exit [ 1, true ]
