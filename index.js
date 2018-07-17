@@ -159,8 +159,9 @@ function defaultInterface () {
   return '127.0.0.1'
 }
 
+var _networks
 function allInterfaces () {
-  var networks = os.networkInterfaces()
+  var networks = _networks = (_networks ? _networks : os.networkInterfaces())
   var names = Object.keys(networks)
   var res = []
 
