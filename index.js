@@ -138,7 +138,7 @@ module.exports = function (opts) {
     }
 
     if (!updated || !socket.setMulticastInterface) return
-    socket.setMulticastInterface(opts.interface || '0.0.0.0')
+    socket.setMulticastInterface(opts.interface || (type === 'udp6') ? '::' : '0.0.0.0')
   }
 
   return that
