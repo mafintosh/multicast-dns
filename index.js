@@ -138,11 +138,26 @@ module.exports = function (opts) {
     }
 
     if (!updated || !socket.setMulticastInterface) return
-    socket.setMulticastInterface(opts.interface || (type === 'udp6') ? '::' : '0.0.0.0')
+    socket.setMulticastInterface(opts.interface || defaultInterface())
   }
 
   return that
 }
+
+function defaultInterface () {
+   var networks = os.networkInterfaces()
+   var names = Object.keys(networks)
+
+   for (var i = 0; i < names.length; i++) {
+     var net = networks[names[i]]
+     for (var j = 0; j < net.length; j++) {
+       var iface = net[j]
+       if (iface.family === 'IPv4' && !iface.internal) return '0.0.0.0`
+     }
+   }
+
+   return '127.0.0.1'
+ }
 
 function allInterfaces () {
   var networks = os.networkInterfaces()
