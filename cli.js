@@ -14,7 +14,7 @@ var hostname = process.argv[2]
 
 if (announcing) {
   var ip = getIp()
-  mdns.on('query', function (query) {
+  mdns.on('query', function (query, rinfo) {
     query.questions.forEach(function (q) {
       if (q.name === hostname) {
         console.log('Responding %s -> %s', q.name, ip)
@@ -24,7 +24,7 @@ if (announcing) {
             name: q.name,
             data: ip
           }]
-        })
+        }, {port: rinfo.port})
       }
     })
   })
