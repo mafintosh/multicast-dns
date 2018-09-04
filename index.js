@@ -77,6 +77,7 @@ module.exports = function (opts) {
     if (typeof rinfo === 'function') return that.send(value, null, rinfo)
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
+    else if (!rinfo.host && !rinfo.address) rinfo.address = me.address
 
     bind(onbind)
 
