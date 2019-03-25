@@ -114,12 +114,13 @@ Creates a new `mdns` instance. Options can contain the following
 ``` js
 {
   multicast: true // use udp multicasting
-  interface: '192.168.0.2' // explicitly specify a network interface. defaults to all
+  interface: '192.168.0.2', // explicitly specify a network interface. defaults to all
+  bindAddress: '192.168.0.3', // what address to bind the socket on. defaults to undefined
   port: 5353, // set the udp port
   ip: '224.0.0.251', // set the udp ip
   ttl: 255, // set the multicast ttl
   loopback: true, // receive your own packets
-  reuseAddr: true // set the reuseAddr option when creating the socket (requires node >=0.11.13)
+  reuseAddr: true, // set the reuseAddr option when creating the socket (requires node >=0.11.13)
 }
 ```
 
