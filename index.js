@@ -153,7 +153,10 @@ function defaultInterface () {
     var net = networks[names[i]]
     for (var j = 0; j < net.length; j++) {
       var iface = net[j]
-      if (iface.family === 'IPv4' && !iface.internal) return '0.0.0.0'
+      if (iface.family === 'IPv4' && !iface.internal) {
+        if (os.platform() === 'darwin' && names[i] === 'en0') return iface.address
+        return '0.0.0.0'
+      }
     }
   }
 
