@@ -4,6 +4,8 @@ var thunky = require('thunky')
 var events = require('events')
 var os = require('os')
 
+var networks = os.networkInterfaces()
+
 var noop = function () {}
 
 module.exports = function (opts) {
@@ -146,7 +148,6 @@ module.exports = function (opts) {
 }
 
 function defaultInterface () {
-  var networks = os.networkInterfaces()
   var names = Object.keys(networks)
 
   for (var i = 0; i < names.length; i++) {
@@ -164,7 +165,6 @@ function defaultInterface () {
 }
 
 function allInterfaces () {
-  var networks = os.networkInterfaces()
   var names = Object.keys(networks)
   var res = []
 
