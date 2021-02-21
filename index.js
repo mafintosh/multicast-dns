@@ -12,15 +12,11 @@ module.exports = function (opts) {
   var that = new events.EventEmitter()
   var port = typeof opts.port === 'number' ? opts.port : 5353
   var type = opts.type || 'udp4'
-  var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
+  var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : 'ff02::fb')
   var me = {address: ip, port: port}
   var memberships = {}
   var destroyed = false
   var interval = null
-
-  if (type === 'udp6' && (!ip || !opts.interface)) {
-    throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
-  }
 
   var socket = opts.socket || dgram.createSocket({
     type: type,
@@ -121,7 +117,7 @@ module.exports = function (opts) {
   }
 
   that.update = function () {
-    var ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces()
+    var ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces(type)
     var updated = false
 
     for (var i = 0; i < ifaces.length; i++) {
@@ -139,13 +135,13 @@ module.exports = function (opts) {
     }
 
     if (!updated || !socket.setMulticastInterface) return
-    socket.setMulticastInterface(opts.interface || defaultInterface())
+    socket.setMulticastInterface(opts.interface || defaultInterface(type))
   }
 
   return that
 }
 
-function defaultInterface () {
+function defaultInterface (socketType) {
   var networks = os.networkInterfaces()
   var names = Object.keys(networks)
 
@@ -153,17 +149,18 @@ function defaultInterface () {
     var net = networks[names[i]]
     for (var j = 0; j < net.length; j++) {
       var iface = net[j]
-      if (iface.family === 'IPv4' && !iface.internal) {
+      if (!iface.internal) {
         if (os.platform() === 'darwin' && names[i] === 'en0') return iface.address
-        return '0.0.0.0'
+
+        return socketType === 'udp4' ? '0.0.0.0' : `::`
       }
     }
   }
 
-  return '127.0.0.1'
+  return socketType === 'udp4' ? '127.0.0.1' : '::1'
 }
 
-function allInterfaces () {
+function allInterfaces (socketType) {
   var networks = os.networkInterfaces()
   var names = Object.keys(networks)
   var res = []
@@ -172,9 +169,15 @@ function allInterfaces () {
     var net = networks[names[i]]
     for (var j = 0; j < net.length; j++) {
       var iface = net[j]
-      if (iface.family === 'IPv4') {
+      if (iface.family === 'IPv4' && socketType === 'udp4') {
         res.push(iface.address)
         // could only addMembership once per interface (https://nodejs.org/api/dgram.html#dgram_socket_addmembership_multicastaddress_multicastinterface)
+        break
+      } else if (iface.family === 'IPv6' && socketType === 'udp6') {
+        // In IPv6, we can specify the interface using the format below
+        // (https://nodejs.org/api/dgram.html#dgram_socket_setmulticastinterface_multicastinterface)
+        res.push(`::%${iface.scopeid}`)
+
         break
       }
     }
