@@ -87,14 +87,14 @@ A packet has the following format
 ``` js
 {
   questions: [{
-    name:'brunhilde.local',
-    type:'A'
+    name: 'brunhilde.local',
+    type: 'A'
   }],
   answers: [{
-    name:'brunhilde.local',
-    type:'A',
-    ttl:seconds,
-    data:(record type specific data)
+    name: 'brunhilde.local',
+    type: 'A',
+    ttl: seconds,
+    data: (record type specific data)
   }],
   additionals: [
     (same format as answers)
@@ -167,8 +167,8 @@ mdns.respond({
     name: 'my-service',
     type: 'SRV',
     data: {
-      port:9999,
-      weigth: 0,
+      port: 9999,
+      weight: 0,
       priority: 10,
       target: 'my-service.example.com'
     }
