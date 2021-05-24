@@ -14,7 +14,7 @@ var port = function (cb) {
 }
 
 var configs = [
-   {ip: '127.0.0.1', multicast: false}
+  {ip: '127.0.0.1', multicast: false}
   // {'interface': '127.0.0.1', multicast: true}
 ]
 

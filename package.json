@@ -8,11 +8,11 @@
   },
   "bin": "cli.js",
   "dependencies": {
-    "dns-packet": "^4.0.0",
+    "dns-packet": "^5.2.2",
     "thunky": "^1.0.2"
   },
   "devDependencies": {
-    "standard": "^10.0.3",
+    "standard": "^11.0.1",
     "tape": "^4.8.0"
   },
   "repository": {
