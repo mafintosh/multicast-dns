@@ -116,8 +116,18 @@ module.exports = function (opts) {
     if (destroyed) return process.nextTick(cb)
     destroyed = true
     clearInterval(interval)
-    socket.once('close', cb)
-    socket.close()
+
+    // Need to drop memberships by hand and ignore errors.
+    // socket.close() does not cope with errors.
+    for (var iface in memberships) {
+      try {
+        socket.dropMembership(ip, iface)
+      } catch (e) {
+        // eat it
+      }
+    }
+    memberships = {}
+    socket.close(cb)
   }
 
   that.update = function () {
@@ -126,20 +136,27 @@ module.exports = function (opts) {
 
     for (var i = 0; i < ifaces.length; i++) {
       var addr = ifaces[i]
-
       if (memberships[addr]) continue
-      memberships[addr] = true
-      updated = true
 
       try {
         socket.addMembership(ip, addr)
+        memberships[addr] = true
+        updated = true
       } catch (err) {
         that.emit('warning', err)
       }
     }
 
-    if (!updated || !socket.setMulticastInterface) return
-    socket.setMulticastInterface(opts.interface || defaultInterface())
+    if (updated) {
+      if (socket.setMulticastInterface) {
+        try {
+          socket.setMulticastInterface(opts.interface || defaultInterface())
+        } catch (err) {
+          that.emit('warning', err)
+        }
+      }
+      that.emit('networkInterface')
+    }
   }
 
   return that
