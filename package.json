@@ -4,7 +4,7 @@
   "description": "Low level multicast-dns implementation in pure javascript",
   "main": "index.js",
   "scripts": {
-    "test": "standard && tape test.js"
+    "test": "standard && tape test/test*.js"
   },
   "bin": "cli.js",
   "dependencies": {

@@ -1,4 +1,4 @@
-var mdns = require('./')
+var mdns = require('..')
 var tape = require('tape')
 var dgram = require('dgram')
 

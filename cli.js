@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
-var mdns = require('./')()
-var path = require('path')
-var os = require('os')
+const mdns = require('./')()
+const path = require('path')
+const os = require('os')
 
-var announcing = process.argv.indexOf('--announce') > -1
+const announcing = process.argv.indexOf('--announce') > -1
 
 if (process.argv.length < 3) {
   console.error('Usage: %s <hostname>', path.basename(process.argv[1]))
   process.exit(1)
 }
-var hostname = process.argv[2]
+const hostname = process.argv[2]
 
 if (announcing) {
-  var ip = getIp()
+  const ip = getIp()
   mdns.on('query', function (query, rinfo) {
     query.questions.forEach(function (q) {
       if (q.name === hostname) {
@@ -24,7 +24,7 @@ if (announcing) {
             name: q.name,
             data: ip
           }]
-        }, {port: rinfo.port})
+        }, { port: rinfo.port })
       }
     })
   })
@@ -48,13 +48,13 @@ if (announcing) {
 }
 
 function getIp () {
-  var networks = os.networkInterfaces()
-  var found = '127.0.0.1'
+  const networks = os.networkInterfaces()
+  let found = '127.0.0.1'
 
   Object.keys(networks).forEach(function (k) {
-    var n = networks[k]
+    const n = networks[k]
     n.forEach(function (addr) {
-      if (addr.family === 'IPv4' && !addr.internal) {
+      if ((addr.family === 'IPv4' || addr.family === 4) && !addr.internal) {
         found = addr.address
       }
     })

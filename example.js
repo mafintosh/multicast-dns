@@ -1,4 +1,4 @@
-var mdns = require('./')()
+const mdns = require('./')()
 
 mdns.on('warning', function (err) {
   console.log(err.stack)

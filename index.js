@@ -1,29 +1,28 @@
-var packet = require('dns-packet')
-var dgram = require('dgram')
-var thunky = require('thunky')
-var events = require('events')
-var os = require('os')
-
-var noop = function () {}
+const packet = require('dns-packet')
+const dgram = require('dgram')
+const thunky = require('thunky')
+const events = require('events')
+const { allInterfaces, defaultInterface } = require('./tools.js')
+const noop = function () {}
 
 module.exports = function (opts) {
   if (!opts) opts = {}
 
-  var that = new events.EventEmitter()
-  var port = typeof opts.port === 'number' ? opts.port : 5353
-  var type = opts.type || 'udp4'
-  var ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
-  var me = {address: ip, port: port}
-  var memberships = {}
-  var destroyed = false
-  var interval = null
+  const that = new events.EventEmitter()
+  let port = typeof opts.port === 'number' ? opts.port : 5353
+  const type = opts.type || 'udp4'
+  const ip = opts.ip || opts.host || (type === 'udp4' ? '224.0.0.251' : null)
+  const me = { address: ip, port }
+  let memberships = {}
+  let destroyed = false
+  let interval = null
 
   if (type === 'udp6' && (!ip || !opts.interface)) {
     throw new Error('For IPv6 multicast you must specify `ip` and `interface`')
   }
 
-  var socket = opts.socket || dgram.createSocket({
-    type: type,
+  const socket = opts.socket || dgram.createSocket({
+    type,
     reuseAddr: opts.reuseAddr !== false,
     toString: function () {
       return type
@@ -59,7 +58,7 @@ module.exports = function (opts) {
     }
   })
 
-  var bind = thunky(function (cb) {
+  const bind = thunky(function (cb) {
     if (!port || opts.bind === false) return cb(null)
     socket.once('error', cb)
     socket.bind(port, opts.bind || opts.interface, function () {
@@ -84,14 +83,14 @@ module.exports = function (opts) {
     function onbind (err) {
       if (destroyed) return cb()
       if (err) return cb(err)
-      var message = packet.encode(value)
+      const message = packet.encode(value)
       socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
     }
   }
 
   that.response =
   that.respond = function (res, rinfo, cb) {
-    if (Array.isArray(res)) res = {answers: res}
+    if (Array.isArray(res)) res = { answers: res }
 
     res.type = 'response'
     res.flags = (res.flags || 0) | packet.AUTHORITATIVE_ANSWER
@@ -104,8 +103,8 @@ module.exports = function (opts) {
     if (typeof rinfo === 'function') return that.query(q, type, null, rinfo)
     if (!cb) cb = noop
 
-    if (typeof q === 'string') q = [{name: q, type: type || 'ANY'}]
-    if (Array.isArray(q)) q = {type: 'query', questions: q}
+    if (typeof q === 'string') q = [{ name: q, type: type || 'ANY' }]
+    if (Array.isArray(q)) q = { type: 'query', questions: q }
 
     q.type = 'query'
     that.send(q, rinfo, cb)
@@ -119,7 +118,7 @@ module.exports = function (opts) {
 
     // Need to drop memberships by hand and ignore errors.
     // socket.close() does not cope with errors.
-    for (var iface in memberships) {
+    for (const iface in memberships) {
       try {
         socket.dropMembership(ip, iface)
       } catch (e) {
@@ -131,14 +130,15 @@ module.exports = function (opts) {
   }
 
   that.update = function () {
-    var ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces()
-    var updated = false
+    const ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces()
+    let updated = false
 
-    for (var i = 0; i < ifaces.length; i++) {
-      var addr = ifaces[i]
+    for (let i = 0; i < ifaces.length; i++) {
+      const addr = ifaces[i]
       if (memberships[addr]) continue
 
       try {
+        console.log(ip, addr)
         socket.addMembership(ip, addr)
         memberships[addr] = true
         updated = true
@@ -160,42 +160,4 @@ module.exports = function (opts) {
   }
 
   return that
-}
-
-function defaultInterface () {
-  var networks = os.networkInterfaces()
-  var names = Object.keys(networks)
-
-  for (var i = 0; i < names.length; i++) {
-    var net = networks[names[i]]
-    for (var j = 0; j < net.length; j++) {
-      var iface = net[j]
-      if (iface.family === 'IPv4' && !iface.internal) {
-        if (os.platform() === 'darwin' && names[i] === 'en0') return iface.address
-        return '0.0.0.0'
-      }
-    }
-  }
-
-  return '127.0.0.1'
-}
-
-function allInterfaces () {
-  var networks = os.networkInterfaces()
-  var names = Object.keys(networks)
-  var res = []
-
-  for (var i = 0; i < names.length; i++) {
-    var net = networks[names[i]]
-    for (var j = 0; j < net.length; j++) {
-      var iface = net[j]
-      if (iface.family === 'IPv4') {
-        res.push(iface.address)
-        // could only addMembership once per interface (https://nodejs.org/api/dgram.html#dgram_socket_addmembership_multicastaddress_multicastinterface)
-        break
-      }
-    }
-  }
-
-  return res
 }
