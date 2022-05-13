@@ -1,5 +1,9 @@
 environment:
   matrix:
+    - nodejs_version: 18
+    - nodejs_version: 16
+    - nodejs_version: 14
+    - nodejs_version: 12
     - nodejs_version: 10
     - nodejs_version: 9
     - nodejs_version: 8
@@ -21,7 +25,7 @@ install:
 matrix:
   fast_finish: true
 
-build: off
+build: false
 
 version: '{build}'
 
