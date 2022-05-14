@@ -14,7 +14,7 @@ var port = function (cb) {
 }
 
 var configs = [
-  {ip: '127.0.0.1', multicast: false}
+  { ip: '127.0.0.1', multicast: false }
   // {'interface': '127.0.0.1', multicast: true}
 ]
 
@@ -52,7 +52,11 @@ tests.forEach(function (test) {
   test('ANY query', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'ANY', class: 'IN'})
+      t.same(packet.questions[0], {
+        name: 'hello-world',
+        type: 'ANY',
+        class: 'IN'
+      })
       dns.destroy(function () {
         t.end()
       })
@@ -64,13 +68,24 @@ tests.forEach(function (test) {
   test('A record', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'A', class: 'IN'})
-      dns.respond([{type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1'}])
+      t.same(packet.questions[0], {
+        name: 'hello-world',
+        type: 'A',
+        class: 'IN'
+      })
+      dns.respond([{ type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1' }])
     })
 
     dns.once('response', function (packet) {
       t.same(packet.answers.length, 1, 'one answer')
-      t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 'IN', flush: false})
+      t.same(packet.answers[0], {
+        type: 'A',
+        name: 'hello-world',
+        ttl: 120,
+        data: '127.0.0.1',
+        class: 'IN',
+        flush: false
+      })
       dns.destroy(function () {
         t.end()
       })
@@ -82,33 +97,72 @@ tests.forEach(function (test) {
   test('A record (two questions)', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 2, 'two questions')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'A', class: 'IN'})
-      t.same(packet.questions[1], {name: 'hej.verden', type: 'A', class: 'IN'})
-      dns.respond([{type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1'}, {
+      t.same(packet.questions[0], {
+        name: 'hello-world',
         type: 'A',
+        class: 'IN'
+      })
+      t.same(packet.questions[1], {
         name: 'hej.verden',
-        ttl: 120,
-        data: '127.0.0.2'
-      }])
+        type: 'A',
+        class: 'IN'
+      })
+      dns.respond([
+        { type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1' },
+        {
+          type: 'A',
+          name: 'hej.verden',
+          ttl: 120,
+          data: '127.0.0.2'
+        }
+      ])
     })
 
     dns.once('response', function (packet) {
       t.same(packet.answers.length, 2, 'one answers')
-      t.same(packet.answers[0], {type: 'A', name: 'hello-world', ttl: 120, data: '127.0.0.1', class: 'IN', flush: false})
-      t.same(packet.answers[1], {type: 'A', name: 'hej.verden', ttl: 120, data: '127.0.0.2', class: 'IN', flush: false})
+      t.same(packet.answers[0], {
+        type: 'A',
+        name: 'hello-world',
+        ttl: 120,
+        data: '127.0.0.1',
+        class: 'IN',
+        flush: false
+      })
+      t.same(packet.answers[1], {
+        type: 'A',
+        name: 'hej.verden',
+        ttl: 120,
+        data: '127.0.0.2',
+        class: 'IN',
+        flush: false
+      })
       dns.destroy(function () {
         t.end()
       })
     })
 
-    dns.query([{name: 'hello-world', type: 'A'}, {name: 'hej.verden', type: 'A'}])
+    dns.query([
+      { name: 'hello-world', type: 'A' },
+      { name: 'hej.verden', type: 'A' }
+    ])
   })
 
   test('AAAA record', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'AAAA', class: 'IN'})
-      dns.respond([{type: 'AAAA', name: 'hello-world', ttl: 120, data: 'fe80::5ef9:38ff:fe8c:ceaa'}])
+      t.same(packet.questions[0], {
+        name: 'hello-world',
+        type: 'AAAA',
+        class: 'IN'
+      })
+      dns.respond([
+        {
+          type: 'AAAA',
+          name: 'hello-world',
+          ttl: 120,
+          data: 'fe80::5ef9:38ff:fe8c:ceaa'
+        }
+      ])
     })
 
     dns.once('response', function (packet) {
@@ -132,13 +186,24 @@ tests.forEach(function (test) {
   test('SRV record', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'SRV', class: 'IN'})
-      dns.respond([{
-        type: 'SRV',
+      t.same(packet.questions[0], {
         name: 'hello-world',
-        ttl: 120,
-        data: {port: 11111, target: 'hello.world.com', priority: 10, weight: 12}
-      }])
+        type: 'SRV',
+        class: 'IN'
+      })
+      dns.respond([
+        {
+          type: 'SRV',
+          name: 'hello-world',
+          ttl: 120,
+          data: {
+            port: 11111,
+            target: 'hello.world.com',
+            priority: 10,
+            weight: 12
+          }
+        }
+      ])
     })
 
     dns.once('response', function (packet) {
@@ -147,7 +212,12 @@ tests.forEach(function (test) {
         type: 'SRV',
         name: 'hello-world',
         ttl: 120,
-        data: {port: 11111, target: 'hello.world.com', priority: 10, weight: 12},
+        data: {
+          port: 11111,
+          target: 'hello.world.com',
+          priority: 10,
+          weight: 12
+        },
         class: 'IN',
         flush: false
       })
@@ -164,13 +234,24 @@ tests.forEach(function (test) {
 
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'TXT', class: 'IN'})
-      dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120, data: data}])
+      t.same(packet.questions[0], {
+        name: 'hello-world',
+        type: 'TXT',
+        class: 'IN'
+      })
+      dns.respond([{ type: 'TXT', name: 'hello-world', ttl: 120, data: data }])
     })
 
     dns.once('response', function (packet) {
       t.same(packet.answers.length, 1, 'one answer')
-      t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 'IN', flush: false})
+      t.same(packet.answers[0], {
+        type: 'TXT',
+        name: 'hello-world',
+        ttl: 120,
+        data: data,
+        class: 'IN',
+        flush: false
+      })
       dns.destroy(function () {
         t.end()
       })
@@ -184,13 +265,24 @@ tests.forEach(function (test) {
 
     dns.once('query', function (packet) {
       t.same(packet.questions.length, 1, 'one question')
-      t.same(packet.questions[0], {name: 'hello-world', type: 'TXT', class: 'IN'})
-      dns.respond([{type: 'TXT', name: 'hello-world', ttl: 120, data: data}])
+      t.same(packet.questions[0], {
+        name: 'hello-world',
+        type: 'TXT',
+        class: 'IN'
+      })
+      dns.respond([{ type: 'TXT', name: 'hello-world', ttl: 120, data: data }])
     })
 
     dns.once('response', function (packet) {
       t.same(packet.answers.length, 1, 'one answer')
-      t.same(packet.answers[0], {type: 'TXT', name: 'hello-world', ttl: 120, data: data, class: 'IN', flush: false})
+      t.same(packet.answers[0], {
+        type: 'TXT',
+        name: 'hello-world',
+        ttl: 120,
+        data: data,
+        class: 'IN',
+        flush: false
+      })
       dns.destroy(function () {
         t.end()
       })
@@ -202,8 +294,8 @@ tests.forEach(function (test) {
   test('QU question bit', function (dns, t) {
     dns.once('query', function (packet) {
       t.same(packet.questions, [
-        {type: 'A', name: 'foo', class: 'IN'},
-        {type: 'A', name: 'bar', class: 'IN'}
+        { type: 'A', name: 'foo', class: 'IN' },
+        { type: 'A', name: 'bar', class: 'IN' }
       ])
       dns.destroy(function () {
         t.end()
@@ -211,8 +303,8 @@ tests.forEach(function (test) {
     })
 
     dns.query([
-      {type: 'A', name: 'foo', class: 'IN'},
-      {type: 'A', name: 'bar', class: 'IN'}
+      { type: 'A', name: 'foo', class: 'IN' },
+      { type: 'A', name: 'bar', class: 'IN' }
     ])
   })
 
@@ -220,21 +312,63 @@ tests.forEach(function (test) {
     dns.once('query', function (packet) {
       dns.respond({
         answers: [
-          {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.1', class: 'IN', flush: true},
-          {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.2', class: 'IN', flush: false}
+          {
+            type: 'A',
+            name: 'foo',
+            ttl: 120,
+            data: '127.0.0.1',
+            class: 'IN',
+            flush: true
+          },
+          {
+            type: 'A',
+            name: 'foo',
+            ttl: 120,
+            data: '127.0.0.2',
+            class: 'IN',
+            flush: false
+          }
         ],
         additionals: [
-          {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.3', class: 'IN', flush: true}
+          {
+            type: 'A',
+            name: 'foo',
+            ttl: 120,
+            data: '127.0.0.3',
+            class: 'IN',
+            flush: true
+          }
         ]
       })
     })
 
     dns.once('response', function (packet) {
       t.same(packet.answers, [
-        {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.1', class: 'IN', flush: true},
-        {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.2', class: 'IN', flush: false}
+        {
+          type: 'A',
+          name: 'foo',
+          ttl: 120,
+          data: '127.0.0.1',
+          class: 'IN',
+          flush: true
+        },
+        {
+          type: 'A',
+          name: 'foo',
+          ttl: 120,
+          data: '127.0.0.2',
+          class: 'IN',
+          flush: false
+        }
       ])
-      t.same(packet.additionals[0], {type: 'A', name: 'foo', ttl: 120, data: '127.0.0.3', class: 'IN', flush: true})
+      t.same(packet.additionals[0], {
+        type: 'A',
+        name: 'foo',
+        ttl: 120,
+        data: '127.0.0.3',
+        class: 'IN',
+        flush: true
+      })
       dns.destroy(function () {
         t.end()
       })
@@ -256,5 +390,45 @@ tests.forEach(function (test) {
     })
 
     dns.query('foo', 'A')
+  })
+
+  test('with second dns', function (dns, t) {
+    var mdns2 = mdns()
+
+    let responseCount = 0
+    let timer = setTimeout(() => {
+      t.fail('timeout no response received')
+      mdns2.destroy(function () {
+        dns.destroy(function () {
+          t.end()
+        })
+      })
+    }, 10000)
+    mdns2.on('response', function (response) {
+      // console.log('got a response packet:', response)
+      responseCount++
+      if (responseCount === 2) {
+        clearTimeout(timer)
+        mdns2.destroy(function () {
+          dns.destroy(function () {
+            t.end()
+          })
+        })
+      }
+    })
+
+    mdns2.on('query', function (query) {
+      // console.log('got a query packet:', query)
+    })
+
+    // lets query for an A record for 'brunhilde.local'
+    mdns2.query({
+      questions: [
+        {
+          name: 'brunhilde.local',
+          type: 'A'
+        }
+      ]
+    })
   })
 })
