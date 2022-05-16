@@ -170,7 +170,7 @@ function defaultInterface () {
     var net = networks[names[i]]
     for (var j = 0; j < net.length; j++) {
       var iface = net[j]
-      if (iface.family === 'IPv4' && !iface.internal) {
+      if (isIPv4(iface.family) && !iface.internal) {
         if (os.platform() === 'darwin' && names[i] === 'en0') return iface.address
         return '0.0.0.0'
       }
@@ -189,7 +189,7 @@ function allInterfaces () {
     var net = networks[names[i]]
     for (var j = 0; j < net.length; j++) {
       var iface = net[j]
-      if (iface.family === 'IPv4') {
+      if (isIPv4(iface.family)) {
         res.push(iface.address)
         // could only addMembership once per interface (https://nodejs.org/api/dgram.html#dgram_socket_addmembership_multicastaddress_multicastinterface)
         break
@@ -198,4 +198,8 @@ function allInterfaces () {
   }
 
   return res
+}
+
+function isIPv4 (family) { // for backwards compat
+  return family === 4 || family === 'IPv4'
 }
